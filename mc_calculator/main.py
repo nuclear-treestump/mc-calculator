@@ -1,5 +1,5 @@
-import modules.database_ops as db
-import modules.recipe_logic as rl
+from . import database_ops as db
+from . import recipe_logic as rl
 
 
 def main():

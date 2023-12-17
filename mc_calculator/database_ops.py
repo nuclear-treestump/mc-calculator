@@ -1,6 +1,6 @@
 import sqlite3
-from .c_recipe import Recipe
-from .c_crafting_block import CraftingBlock
+from mc_calculator.c_recipe import Recipe
+from mc_calculator.c_crafting_block import CraftingBlock
 
 
 def setup_database(conn=None):

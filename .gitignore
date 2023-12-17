@@ -1,4 +1,10 @@
 minecraft_recipes.db
-modules/__pycache__/*
-/__pycache__/*
-tests/__pycache__/*
+mc_calculator/__pycache__
+/__pycache__
+tests/__pycache__
+/test_env/*
+/test_env
+/dist
+/mc_calculator.egg-info
+/build
+/.pytest_cache
