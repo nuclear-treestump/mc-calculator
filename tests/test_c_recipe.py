@@ -2,8 +2,8 @@ import unittest
 from modules.c_crafting_block import CraftingBlock
 from modules.c_recipe import Recipe
 
-class TestRecipe(unittest.TestCase):
 
+class TestRecipe(unittest.TestCase):
     def setUp(self):
         self.crafting_block = CraftingBlock("ctable3", [1, 2, 3, 4, 5, 6, 7, 8, 9])
         self.recipe_data = {
@@ -11,7 +11,7 @@ class TestRecipe(unittest.TestCase):
             "crafting_block": self.crafting_block,
             "shaped": True,
             "slots": {1: "Wood Plank", 2: "Wood Plank"},
-            "ingredients": {"Wood Plank": 8}
+            "ingredients": {"Wood Plank": 8},
         }
 
     def test_recipe_creation(self):
@@ -34,5 +34,6 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(deserialized.name, recipe.name)
         self.assertEqual(deserialized.crafting_block.name, recipe.crafting_block.name)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
