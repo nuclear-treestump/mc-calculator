@@ -2,7 +2,7 @@ import sqlite3
 import json
 import modules.c_crafting_block
 import modules.c_recipe
-import modules.databaseOps as db
+import modules.database_ops as db
 
 class Recipe:
     def __init__(self, name, crafting_block="ctable3", shaped=False, slots=None, ingredients=None):
@@ -21,12 +21,41 @@ class Recipe:
         return Recipe(name=data['name'], crafting_block=data['crafting_block'], 
                       shaped=data['shaped'], slots=data['slots'], ingredients=data['ingredients'])
 def create_recipe():
-    name = input("Enter the name of the item (e.g., Chest): ")
-    shaped = input("Is the recipe shaped? (yes/no): ").lower() == 'yes'
-    crafting_block = "ctable3"  # Will add stuff here later.
+    name = input("Enter the name of the item (e.g., Chest): ").strip()
+    if not name:
+        print("Invalid input: Name cannot be empty.")
+        return
 
-    slots = {} 
+    shaped_input = input("Is the recipe shaped? (yes/no): ").lower().strip()
+    shaped = shaped_input == 'yes'
+    
+    crafting_block = "ctable3"  # This could be expanded to choose from available crafting blocks
+
+    slots = {}
     ingredients = {}
+
+    while True:
+        ingredient = input("Enter an ingredient (or type 'done' to finish): ").strip()
+        if ingredient.lower() == 'done':
+            break
+        if not ingredient:
+            print("Invalid input: Ingredient cannot be empty.")
+            continue
+
+        try:
+            quantity = int(input(f"Enter the quantity of {ingredient} needed: "))
+            if quantity <= 0:
+                raise ValueError
+        except ValueError:
+            print("Invalid input: Quantity must be a positive integer.")
+            continue
+
+        ingredients[ingredient] = quantity
+
+    recipe = Recipe(name, crafting_block, shaped, slots, ingredients)
+    db.save_recipe_to_db(recipe)
+    return recipe
+
 
 def calculate_ingredients(recipe_name, desired_quantity):
     recipe = db.fetch_recipe(recipe_name)
