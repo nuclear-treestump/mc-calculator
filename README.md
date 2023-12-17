@@ -4,7 +4,7 @@
 The Minecraft Recipe Calculator is a Python-based tool designed for Minecraft. It tells you how many items you need to make a specific recipe.
 
 ## Key Features
-- **Recipe Creation**: Users can create custom recipes by specifying the name of the item and the ingredients required, along with their quantities.
+- **Recipe Creation**: Users can create custom recipes by specifying the name of the item and the ingredients required, along with their quantities. This now supports nested recipes.
 - **Recipe Database**: Recipes are saved in a SQLite database, allowing for easy retrieval and management. This also helps in preventing the creation of duplicate recipes.
 - **Ingredient Calculation**: The application can calculate the total amount of each ingredient needed based on the desired quantity of the final crafted item.
 - **Recipe Browsing**: Users can view a list of all saved recipes and select one for ingredient calculation.
