@@ -1,5 +1,8 @@
 import sqlite3
 import json
+import modules.c_crafting_block
+import modules.c_recipe
+import modules.databaseOps as db
 
 class Recipe:
     def __init__(self, name, crafting_block="ctable3", shaped=False, slots=None, ingredients=None):
@@ -17,31 +20,6 @@ class Recipe:
         data = json.loads(json_str)
         return Recipe(name=data['name'], crafting_block=data['crafting_block'], 
                       shaped=data['shaped'], slots=data['slots'], ingredients=data['ingredients'])
-
-
-def setup_database():
-    conn = sqlite3.connect('minecraft_recipes.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS recipes (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            ingredients TEXT NOT NULL,
-            shaped BOOLEAN NOT NULL,
-            crafting_block TEXT NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-def save_recipe_to_db(recipe):
-    conn = sqlite3.connect('minecraft_recipes.db')
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO recipes (name, ingredients, shaped, crafting_block) VALUES (?, ?, ?, ?)', 
-                   (recipe.name, recipe.to_json(), recipe.shaped, recipe.crafting_block))
-    conn.commit()
-    conn.close()
-
 def create_recipe():
     name = input("Enter the name of the item (e.g., Chest): ")
     shaped = input("Is the recipe shaped? (yes/no): ").lower() == 'yes'
@@ -50,34 +28,8 @@ def create_recipe():
     slots = {} 
     ingredients = {}
 
-    while True:
-        ingredient = input("Enter an ingredient (or type 'done' to finish): ")
-        if ingredient.lower() == 'done':
-            break
-        quantity = int(input(f"Enter the quantity of {ingredient} needed: "))
-        ingredients[ingredient] = quantity
-
-    recipe = Recipe(name, crafting_block, shaped, slots, ingredients)
-    save_recipe_to_db(recipe)
-
-    return recipe
-
-
-
-def fetch_recipe(recipe_name):
-    conn = sqlite3.connect('minecraft_recipes.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT ingredients FROM recipes WHERE name = ?', (recipe_name,))
-    row = cursor.fetchone()
-    conn.close()
-
-    if row:
-        return Recipe.from_json(row[0])
-    else:
-        return None
-
 def calculate_ingredients(recipe_name, desired_quantity):
-    recipe = fetch_recipe(recipe_name)
+    recipe = db.fetch_recipe(recipe_name)
     if recipe:
         print(f"\nTo make {desired_quantity} {recipe.name}(s), you need:")
         for ingredient, quantity in recipe.ingredients.items():
@@ -131,5 +83,5 @@ def main():
             print("Invalid option.")
 
 if __name__ == "__main__":
-    setup_database() 
+    db.setup_database() 
     main()
