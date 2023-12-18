@@ -1,5 +1,5 @@
 import json
-from .c_crafting_block import CraftingBlock
+from mc_calculator.c_crafting_block import CraftingBlock
 
 
 class Recipe:

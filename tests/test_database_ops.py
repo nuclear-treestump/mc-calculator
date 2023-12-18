@@ -1,8 +1,8 @@
 import unittest
 import sqlite3
-from modules.database_ops import setup_database, save_recipe_to_db, fetch_recipe
-from modules.c_recipe import Recipe
-from modules.c_crafting_block import CraftingBlock
+from mc_calculator.database_ops import setup_database, save_recipe_to_db, fetch_recipe
+from mc_calculator.c_recipe import Recipe
+from mc_calculator.c_crafting_block import CraftingBlock
 
 
 class TestDatabaseOps(unittest.TestCase):

@@ -1,5 +1,6 @@
-import modules.c_recipe as rcp
-import modules.database_ops as db
+from . import c_recipe as rcp
+import math
+from . import database_ops as db
 
 
 def create_recipe():
@@ -86,8 +87,6 @@ def calculate_ingredients(recipe_name, desired_quantity):
     Returns:
         None: This function prints the required ingredients and their quantities to the console.
     """
-    import math
-    import modules.database_ops as db
 
     def calculate(recipe, multiplier):
         ingredients_needed = {}
@@ -156,8 +155,6 @@ def list_all_recipes():
     Retrieves and displays a list of all recipes, including their name and output count,
     from the database. This function is intended for use within the main application menu.
     """
-    import modules.database_ops as db
-
     existing_recipes = db.list_recipes()
     print("\nAvailable Recipes:")
     for recipe_number, recipe_name, output_count in existing_recipes:
@@ -172,8 +169,6 @@ def select_and_calculate_recipe():
     and specify the desired quantity of the final product. It calculates and displays the
     required ingredients and their quantities.
     """
-    import modules.database_ops as db
-
     recipes = db.list_recipes()
     if recipes:
         for recipe_number, recipe_name, output_count in recipes:

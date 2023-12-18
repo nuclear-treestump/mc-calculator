@@ -1,6 +1,6 @@
 import unittest
-from modules.c_crafting_block import CraftingBlock
-from modules.c_recipe import Recipe
+from mc_calculator.c_crafting_block import CraftingBlock
+from mc_calculator.c_recipe import Recipe
 
 
 class TestRecipe(unittest.TestCase):
