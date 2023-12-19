@@ -88,31 +88,33 @@ def calculate_ingredients(recipe_name, desired_quantity):
         None: This function prints the required ingredients and their quantities to the console.
     """
 
-    def calculate(recipe, multiplier):
+    def calculate(recipe, desired_quantity):
         ingredients_needed = {}
         steps = []
 
+        # Revise run quantity
+        desired_runs = math.ceil(desired_quantity / recipe.output_count)
+
         # Calculate ingredients for the base recipe
         for ingredient, quantity in recipe.ingredients.items():
-            total_quantity = quantity * multiplier
+            total_quantity = quantity * desired_runs
             ingredients_needed[ingredient] = (
                 ingredients_needed.get(ingredient, 0) + total_quantity
             )
 
         # Calculate ingredients for nested recipes
-        for nested_id, final_quantity_needed in recipe.nested_recipes.items():
+        for nested_id, quantity_needed in recipe.nested_recipes.items():
             nested_recipe = db.fetch_recipe_by_id(nested_id)
             if nested_recipe:
-                nested_multiplier = math.ceil(
-                    final_quantity_needed / nested_recipe.output_count
+                # Determine how many runs of the nested recipe are needed
+                runs_needed = math.ceil(
+                    quantity_needed * desired_quantity / nested_recipe.output_count
                 )
-                nested_ingredients, nested_steps = calculate(
-                    nested_recipe, nested_multiplier
-                )
+                nested_ingredients, nested_steps = calculate(nested_recipe, runs_needed)
                 steps.append(
                     (
                         nested_recipe.name,
-                        nested_multiplier,
+                        runs_needed,
                         nested_recipe.output_count,
                         nested_steps,
                     )
