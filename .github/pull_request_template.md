@@ -3,7 +3,7 @@
 ## Description
 Provide a detailed description of what this PR does.
 
-## Related Issue
+## Related Issue(s)
 Link to the issue that this PR addresses.
 
 ## Motivation and Context
