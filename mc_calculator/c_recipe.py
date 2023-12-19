@@ -1,8 +1,25 @@
+"""
+This module defines the Recipe class, used for creating and manipulating
+crafting recipes in the Minecraft Recipe Calculator application.
+"""
 import json
 from mc_calculator.c_crafting_block import CraftingBlock
 
 
 class Recipe:
+    """
+    Represents a recipe for crafting items in Minecraft.
+
+    Attributes:
+        name (str): Name of the recipe.
+        crafting_block (CraftingBlock): Crafting block used for the recipe.
+        output_count (int): Number of items produced by the recipe.
+        shaped (bool): Indicates if the recipe is shaped.
+        slots (dict): Slot configuration for the recipe.
+        ingredients (dict): Ingredients required for the recipe.
+        nested_recipes (dict): Nested recipes within this recipe.
+    """
+
     def __init__(
         self,
         name,
@@ -28,12 +45,27 @@ class Recipe:
         )  # Format: {recipe_id: quantity, ...}
 
     def to_json(self):
+        """
+        Converts the recipe into a JSON string.
+
+        Returns:
+            str: JSON string representation of the recipe.
+        """
         recipe_dict = self.__dict__.copy()
         recipe_dict["crafting_block"] = self.crafting_block.name
         return json.dumps(recipe_dict)
 
     @staticmethod
     def from_json(json_str):
+        """
+        Creates a Recipe object from a JSON string.
+
+        Args:
+            json_str (str): JSON string representing a recipe.
+
+        Returns:
+            Recipe: A Recipe object created from the JSON string.
+        """
         data = json.loads(json_str)
         crafting_block = CraftingBlock.get_block(data["crafting_block"])
         nested_recipes = data.get("nested_recipes", {})
