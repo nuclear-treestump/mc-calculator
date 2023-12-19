@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mc_calculator",
-    version="0.1.0",
+    version="0.1.1",
     author="0xIkari",
     author_email="ikari@nuclear-treestump.com",
     description="A Minecraft recipe calculator",
