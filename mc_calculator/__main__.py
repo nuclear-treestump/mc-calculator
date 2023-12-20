@@ -4,7 +4,7 @@ This module is the entry point for the Minecraft Recipe Calculator application.
 It provides a menu-driven interface for interacting with the application, enabling users to create,
 list, and calculate ingredients for recipes, as well as exit the application.
 """
-
+import logging
 from . import database_ops as db
 from . import recipe_logic as rl
 
@@ -20,7 +20,7 @@ def display_credits():
     """
     Displays the credits for the application.
     """
-    print("MC-CALCULATOR v0.3.0 created by: 0xIkari")
+    print("MC-CALCULATOR v0.3.1 created by: 0xIkari")
     print(
         "For more information, visit: https://github.com/nuclear-treestump/mc-calculator"
     )
@@ -34,6 +34,10 @@ def main():
     It allows users to create new recipes, list all recipes, calculate ingredients for a recipe,
     and exit the application.
     """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     print("Setting up DB. This may take a moment. . .")
     db.setup_database()
     print(MC_CALC_TITLE)
