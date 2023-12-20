@@ -1,5 +1,11 @@
 # Minecraft Recipe Calculator
 
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/nuclear-treestump/mc-calculator?label=Version)
+![PyPI - Version](https://img.shields.io/pypi/v/mc-calculator)
+![GitHub all releases](https://img.shields.io/github/downloads/nuclear-treestump/mc-calculator/total)
+![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/nuclear-treestump/mc-calculator)
+
+
 ## Overview
 The Minecraft Recipe Calculator is a Python-based tool designed for Minecraft. It tells you how many items you need to make a specific recipe.
 
