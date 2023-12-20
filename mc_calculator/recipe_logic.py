@@ -165,9 +165,9 @@ def calculate_nested_recipe_ingredients(
         desired_quantity (int): The desired quantity of the final product.
 
     Returns:
-        dict: A dictionary of ingredients and their quantities for the nested recipe.
-        list: A list of steps involved in the nested recipe.
-        int: The number of runs needed for the nested recipe.
+        tuple[dict, list, int]: A tuple containing the dictionary of
+        ingredients/quantities, a list of steps,
+        and the number of runs needed for a nested recipe
     """
     runs_needed = math.ceil(
         quantity_needed * desired_quantity / nested_recipe.output_count
