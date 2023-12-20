@@ -1,9 +1,21 @@
+"""
+This module handles database operations for the Minecraft
+Recipe Calculator application, including setup and recipe management.
+"""
 import sqlite3
 from mc_calculator.c_recipe import Recipe
-from mc_calculator.c_crafting_block import CraftingBlock
+
+# from mc_calculator.c_crafting_block import CraftingBlock
 
 
 def setup_database(conn=None):
+    """
+    Sets up the database for storing recipes.
+
+    Args:
+        conn (sqlite3.Connection, optional): An existing database
+        connection. If not provided, a new connection will be created.
+    """
     should_close = False
     if conn is None:
         conn = sqlite3.connect("minecraft_recipes.db")
@@ -29,6 +41,15 @@ def setup_database(conn=None):
 
 
 def save_recipe_to_db(recipe, conn=None):
+    """
+    Saves a recipe to the database.
+
+    Args:
+        recipe (Recipe): The recipe to be saved.
+        conn (sqlite3.Connection, optional): An existing
+        database connection. If not provided, a new connection
+        will be created.
+    """
     should_close = False
     if conn is None:
         conn = sqlite3.connect("minecraft_recipes.db")
@@ -36,7 +57,8 @@ def save_recipe_to_db(recipe, conn=None):
 
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO recipes (name, ingredients, shaped, crafting_block, output_count) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO recipes (name, ingredients, shaped, crafting_block, output_count) "
+        "VALUES (?, ?, ?, ?, ?)",
         (
             recipe.name,
             recipe.to_json(),
@@ -51,7 +73,19 @@ def save_recipe_to_db(recipe, conn=None):
         conn.close()
 
 
-def fetch_recipe(recipe_name, conn=None):
+def fetch_recipe(recipe_name: str, conn=None):
+    """
+    Get a recipe from the database by name.
+
+    Args:
+        recipe_name (str): The name of the recipe to query for.
+        conn (sqlite3.Connection, optional): An existing
+        database connection. If not provided, a new connection
+        will be created.
+
+    Returns:
+        Recipe object
+    """
     should_close = False
     if conn is None:
         conn = sqlite3.connect("minecraft_recipes.db")
@@ -66,11 +100,22 @@ def fetch_recipe(recipe_name, conn=None):
 
     if row:
         return Recipe.from_json(row[0])
-    else:
-        return None
+    return None
 
 
 def fetch_recipe_by_id(recipe_id, conn=None):
+    """
+    Get a recipe from the database by ID.
+
+    Args:
+        recipe_id (str): The ID of the recipe to query for.
+        conn (sqlite3.Connection, optional): An existing
+        database connection. If not provided, a new connection
+        will be created.
+
+    Returns:
+        Recipe object
+    """
     should_close = False
     if conn is None:
         conn = sqlite3.connect("minecraft_recipes.db")
@@ -85,11 +130,21 @@ def fetch_recipe_by_id(recipe_id, conn=None):
 
     if row:
         return Recipe.from_json(row[0])
-    else:
-        return None
+    return None
 
 
 def list_recipes(conn=None):
+    """
+    Get all recipes
+
+    Args:
+        conn (sqlite3.Connection, optional): An existing
+        database connection. If not provided, a new connection
+        will be created.
+
+    Returns:
+        A list of all recipes in DB
+    """
     should_close = False
     if conn is None:
         conn = sqlite3.connect("minecraft_recipes.db")
