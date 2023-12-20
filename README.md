@@ -26,7 +26,7 @@ The Minecraft Recipe Calculator is a Python-based tool designed for Minecraft. I
 
 ### Installation
 1. **Install the package**: Install the package via pip by running `pip install mc-calculator`
-    - If you've downloaded the `.whl` file from the releases, you can install it by running `pip install /path/to/mc_calculator-0.2.0-py3-none-any.whl`
+    - If you've downloaded the `.whl` file from the releases, you can install it by running `pip install /path/to/mc_calculator-0.3.0-py3-none-any.whl`
 2. **Confirm the package installed correctly**: Run `mc-calculator` from the terminal. If its installed correctly, you'll get a menu that looks like this:
     ```
 
@@ -40,8 +40,8 @@ The Minecraft Recipe Calculator is a Python-based tool designed for Minecraft. I
     1. Create a new recipe
     2. List all recipes
     3. Calculate ingredients for a recipe
-    4. Exit
-    5. Credits
+    4. Credits
+    5. Exit
     Choose an option:
     ```
     If you see this, you've installed the project successfully! Good job!
@@ -50,8 +50,9 @@ The Minecraft Recipe Calculator is a Python-based tool designed for Minecraft. I
 1. **Create a New Recipe**: Choose to create a new recipe and follow the prompts to enter the item name, ingredients, and their quantities.
 2. **View Recipes**: Select the option to view all available recipes in the database.
 3. **Calculate Ingredients**: Choose a recipe and specify the number of final items you wish to craft. The application will display the total ingredients required.
-4. **Close the program**: Choose to close the app.
-5. **Credits**: Choose to view the credits.
+4. **Credits**: Choose to view the credits.
+5. **Close the program**: Choose to close the app.
+
 
 ## Report A Problem:
 - Found a bug? Got an idea to make mc-calculator even more useful? [Raise an Issue here!](https://github.com/nuclear-treestump/mc-calculator/issues)

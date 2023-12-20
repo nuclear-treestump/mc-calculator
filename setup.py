@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mc_calculator",
-    version="0.2.0",
+    version="0.3.0",
     author="0xIkari",
     author_email="ikari@nuclear-treestump.com",
     description="A Minecraft recipe calculator",
@@ -14,9 +14,9 @@ setup(
         "console_scripts": ["mc-calculator=mc_calculator.__main__:main"],
     },
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     include_package_data=True,
 )
