@@ -56,19 +56,28 @@ class Recipe:
         return json.dumps(recipe_dict)
 
     @staticmethod
-    def from_json(json_str):
+    def from_json(json_str, nested_recipes_json_str=None):
         """
-        Creates a Recipe object from a JSON string.
+        Creates a Recipe object from JSON strings.
 
         Args:
-            json_str (str): JSON string representing a recipe.
+            json_str (str): JSON string representing the basic recipe.
+            nested_recipes_json_str (str, optional): JSON string representing nested recipes.
 
         Returns:
-            Recipe: A Recipe object created from the JSON string.
+            Recipe: A Recipe object created from the JSON strings.
         """
         data = json.loads(json_str)
         crafting_block = CraftingBlock.get_block(data["crafting_block"])
-        nested_recipes = data.get("nested_recipes", {})
+
+        nested_recipes = {}
+        if nested_recipes_json_str is not None:
+            nested_recipes = json.loads(nested_recipes_json_str)
+        else:
+            nested_recipes = data.get(
+                "nested_recipes", {}
+            )  # for backward compatibility
+
         return Recipe(
             name=data["name"],
             crafting_block=crafting_block,

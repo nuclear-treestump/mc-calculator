@@ -186,7 +186,7 @@ def print_steps(steps):
                       the output count, and any nested steps.
     """
     for step_name, step_multiplier, step_output, nested_steps in steps:
-        nested_recipe = db.fetch_recipe(step_name)
+        nested_recipe = db.fetch_recipe_by_name(step_name)
         print(
             f"- {step_multiplier} Recipe {step_name} (Output: {step_output}, "
             + ", ".join(
@@ -208,7 +208,7 @@ def calculate_ingredients(recipe_name, desired_quantity):
     Returns:
         None: This function prints the required ingredients and their quantities to the console.
     """
-    recipe = db.fetch_recipe(recipe_name)
+    recipe = db.fetch_recipe_by_name(recipe_name)
     if recipe:
         print(f"\nTo make {desired_quantity} {recipe.name}(s), you need to first make:")
         total_ingredients, steps = calculate(recipe, desired_quantity)

@@ -1,6 +1,10 @@
 import unittest
 import sqlite3
-from mc_calculator.database_ops import setup_database, save_recipe_to_db, fetch_recipe
+from mc_calculator.database_ops import (
+    setup_database,
+    save_recipe_to_db,
+    fetch_recipe_by_name,
+)
 from mc_calculator.c_recipe import Recipe
 from mc_calculator.c_crafting_block import CraftingBlock
 
@@ -24,7 +28,7 @@ class TestDatabaseOps(unittest.TestCase):
             {"Ingredient1": 1, "Ingredient2": 2},
         )
         save_recipe_to_db(recipe, conn=self.conn)
-        fetched_recipe = fetch_recipe("Test Recipe", conn=self.conn)
+        fetched_recipe = fetch_recipe_by_name("Test Recipe", conn=self.conn)
 
         self.assertIsNotNone(fetched_recipe)
         self.assertEqual(fetched_recipe.name, recipe.name)
