@@ -140,6 +140,7 @@ def save_recipe_to_db(recipe, conn=None):
     conn.commit()
 
 
+@with_db_connection()
 def fetch_recipe_by_name(recipe_name: str, conn=None):
     """
     Get a recipe from the database by name.

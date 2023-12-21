@@ -6,6 +6,7 @@ list, and calculate ingredients for recipes, as well as exit the application.
 """
 import logging
 from . import database_ops as db
+from .decorator import auto_log
 from . import recipe_logic as rl
 
 MC_CALC_TITLE = """
@@ -16,6 +17,7 @@ MC_CALC_TITLE = """
 """
 
 
+@auto_log(__name__)
 def display_credits():
     """
     Displays the credits for the application.
@@ -26,6 +28,7 @@ def display_credits():
     )
 
 
+@auto_log(__name__)
 def main():
     """
     Main function to run the Minecraft Recipe Calculator application.
@@ -35,7 +38,9 @@ def main():
     and exit the application.
     """
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
+        filename="mccalculator.log",
+        filemode="a",
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     print("Setting up DB. This may take a moment. . .")

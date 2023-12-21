@@ -5,11 +5,13 @@ in the Minecraft Recipe Calculator application.
 import logging
 import math
 from . import database_ops as db
+from .decorator import auto_log
 from . import recipe as rcp
 
 logger = logging.getLogger(__name__)
 
 
+@auto_log(__name__)
 def get_ingredient_input():
     """
     Prompts the user to input an ingredient and its quantity.
@@ -38,6 +40,7 @@ def get_ingredient_input():
     return ingredient, quantity
 
 
+@auto_log(__name__)
 def get_nested_recipe_input(existing_recipes):
     """
     Prompts the user to select an existing recipe to use as a nested recipe.
@@ -69,6 +72,7 @@ def get_nested_recipe_input(existing_recipes):
     return selected_recipe_id, final_quantity_needed
 
 
+@auto_log(__name__)
 def create_recipe():
     """
     Creates a new recipe by prompting the user for inputs.
@@ -91,9 +95,19 @@ def create_recipe():
         logger.warning(f"User recipe name rejected. Length: {len(name)}")
         print("Invalid input. Please enter a valid recipe name.")
     crafting_block = "ctable3"  # Default or choose from available blocks
-    rec_output_count = int(
-        input("Enter the number of items produced by this recipe (default 1): ") or "1"
-    )
+    while True:
+        try:
+            rec_output_count_input = input(
+                "Enter the number of items produced by this recipe (default 1): "
+            )
+            rec_output_count = (
+                int(rec_output_count_input) if rec_output_count_input else 1
+            )
+            if rec_output_count > 0:  # Check for a positive integer
+                break
+            print("Please enter a positive integer.")
+        except ValueError:
+            print("Invalid input. Please enter a valid integer.")
 
     while True:
         shaped = input("Is the recipe shaped? (yes/no): ").lower()[:3]
@@ -137,6 +151,7 @@ def create_recipe():
     return recipe
 
 
+@auto_log(__name__)
 def calculate(recipe, desired_quantity):
     """
     Calculates the ingredients and steps required for a given recipe and quantity.
@@ -182,6 +197,7 @@ def calculate(recipe, desired_quantity):
     return ingredients_needed, steps
 
 
+@auto_log(__name__)
 def calculate_single_recipe_ingredients(recipe, desired_runs):
     """
     Calculates the ingredients required for a given recipe based on the number of desired runs.
@@ -203,6 +219,7 @@ def calculate_single_recipe_ingredients(recipe, desired_runs):
     return ingredients_needed
 
 
+@auto_log(__name__)
 def calculate_nested_recipe_ingredients(
     nested_recipe, quantity_needed, desired_quantity
 ):
@@ -229,6 +246,7 @@ def calculate_nested_recipe_ingredients(
     return nested_ingredients, nested_steps, runs_needed
 
 
+@auto_log(__name__)
 def print_steps(steps):
     """
     Recursively prints the steps and ingredients required for a recipe and its nested recipes.
@@ -251,6 +269,7 @@ def print_steps(steps):
         print_steps(nested_steps)  # Recursively print nested steps
 
 
+@auto_log(__name__)
 def calculate_ingredients(recipe_name, desired_quantity):
     """
     Calculates the ingredients required for a given recipe and quantity.
@@ -262,7 +281,6 @@ def calculate_ingredients(recipe_name, desired_quantity):
     Returns:
         None: This function prints the required ingredients and their quantities to the console.
     """
-    logger.debug("Entering calculate_ingredients()")
     recipe = db.fetch_recipe_by_name(recipe_name)
     logger.info(f"Calculating: {recipe.name} for quantity: {desired_quantity}")
     if recipe:
@@ -276,6 +294,7 @@ def calculate_ingredients(recipe_name, desired_quantity):
         print("Recipe not found.")
 
 
+@auto_log(__name__)
 def list_all_recipes():
     """
     Lists all the recipes currently stored in the database.
@@ -283,12 +302,14 @@ def list_all_recipes():
     Retrieves and displays a list of all recipes, including their name and output count,
     from the database. This function is intended for use within the main application menu.
     """
+    logger.info("Printing all recipes to console")
     existing_recipes = db.list_recipes()
     print("\nAvailable Recipes:")
     for recipe_number, recipe_name, output_count in existing_recipes:
         print(f"{recipe_number}. {recipe_name} (Output: {output_count})")
 
 
+@auto_log(__name__)
 def select_and_calculate_recipe():
     """
     Prompts the user to select a recipe and calculates the required ingredients.
