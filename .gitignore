@@ -8,3 +8,4 @@ tests/__pycache__
 /mc_calculator.egg-info
 /build
 /.pytest_cache
+mccalculator.log
