@@ -19,8 +19,11 @@ def get_ingredient_input():
     """
     while True:
         ingredient = input("Enter an ingredient: ")
+        logger.info(f"User entered ingredient: {ingredient}")
         if 0 < len(ingredient) <= 50:  # Check for a reasonable length
+            logger.info(f"User ingredient {ingredient} accepted.")
             break
+        logger.warning(f"Invalid ingredient input length. Length: {len(ingredient)}")
         print("Invalid input. Please enter a valid ingredient name.")
 
     while True:
@@ -50,10 +53,13 @@ def get_nested_recipe_input(existing_recipes):
             selected_recipe_id = int(
                 input("Select the ID of the recipe to use as an ingredient: ")
             )
+            logger.info(f"User selected recipe ID: {selected_recipe_id}")
             if any(
                 recipe_id == selected_recipe_id for recipe_id, _, _ in existing_recipes
             ):
+                logger.debug(f"Successfully selected recipe ID: {selected_recipe_id}")
                 break
+            logger.warning(f"User selected invalid recipe ID: {selected_recipe_id}")
             print("Invalid ID. Please select a valid recipe ID.")
         except ValueError:
             print("Invalid input. Please enter a valid integer for the recipe ID.")
@@ -75,10 +81,14 @@ def create_recipe():
     Returns:
         rcp.Recipe: An instance of the Recipe class with the entered recipe details.
     """
+    logger.info("Starting new recipe creation")
     while True:
         name = input("Enter the name of the item (e.g., Aqueous Accumulator): ")
+        logger.info(f"User entered Recipe Name: {name}")
         if 0 < len(name) <= 100:  # Check for a reasonable length
+            logger.debug(f"Recipe name: '{name}' accepted.")
             break
+        logger.warning(f"User recipe name rejected. Length: {len(name)}")
         print("Invalid input. Please enter a valid recipe name.")
     crafting_block = "ctable3"  # Default or choose from available blocks
     rec_output_count = int(
@@ -139,6 +149,9 @@ def calculate(recipe, desired_quantity):
         dict: A dictionary of ingredients and their required quantities.
         list: A list of steps involved in making the recipe.
     """
+    logger.info(
+        f"Starting calculation for recipe: {recipe.name} for quantity: {desired_quantity}"
+    )
     ingredients_needed = {}
     steps = []
 
@@ -182,6 +195,7 @@ def calculate_single_recipe_ingredients(recipe, desired_runs):
     """
     ingredients_needed = {}
     for ingredient, quantity in recipe.ingredients.items():
+        logger.info(f"Calculating {ingredient} with quantity {quantity}")
         total_quantity = quantity * desired_runs
         ingredients_needed[ingredient] = (
             ingredients_needed.get(ingredient, 0) + total_quantity
@@ -205,6 +219,9 @@ def calculate_nested_recipe_ingredients(
         ingredients/quantities, a list of steps,
         and the number of runs needed for a nested recipe
     """
+    logger.info(
+        f"Starting calculation for {nested_recipe.name}, quantity needed: {quantity_needed}, desired quantity: {desired_quantity}"
+    )
     runs_needed = math.ceil(
         quantity_needed * desired_quantity / nested_recipe.output_count
     )
@@ -221,6 +238,7 @@ def print_steps(steps):
                       Each tuple contains the recipe name, the number of runs needed,
                       the output count, and any nested steps.
     """
+    logger.info("Printing steps. . .")
     for step_name, step_multiplier, step_output, nested_steps in steps:
         nested_recipe = db.fetch_recipe_by_name(step_name)
         print(
@@ -244,7 +262,9 @@ def calculate_ingredients(recipe_name, desired_quantity):
     Returns:
         None: This function prints the required ingredients and their quantities to the console.
     """
+    logger.debug("Entering calculate_ingredients()")
     recipe = db.fetch_recipe_by_name(recipe_name)
+    logger.info(f"Calculating: {recipe.name} for quantity: {desired_quantity}")
     if recipe:
         print(f"\nTo make {desired_quantity} {recipe.name}(s), you need to first make:")
         total_ingredients, steps = calculate(recipe, desired_quantity)
