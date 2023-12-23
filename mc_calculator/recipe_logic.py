@@ -4,6 +4,7 @@ in the Minecraft Recipe Calculator application.
 """
 import logging
 import math
+from typing import List, Tuple, Dict
 from . import database_ops as db
 from .decorator import auto_log
 from . import recipe as rcp
@@ -42,7 +43,9 @@ def get_ingredient_input() -> Tuple[str, int]:
 
 
 @auto_log(__name__)
-def get_nested_recipe_input(existing_recipes):
+def get_nested_recipe_input(
+    existing_recipes: List[Tuple[int, str, int]]
+) -> Tuple[int, int]:
     """
     Prompts the user to select an existing recipe to use as a nested recipe.
 
@@ -75,7 +78,7 @@ def get_nested_recipe_input(existing_recipes):
 
 
 @auto_log(__name__)
-def create_recipe():
+def create_recipe() -> rcp.Recipe:
     """
     Creates a new recipe by prompting the user for inputs.
 
@@ -154,7 +157,9 @@ def create_recipe():
 
 
 @auto_log(__name__)
-def calculate(recipe, desired_quantity):
+def calculate(
+    recipe: rcp.Recipe, desired_quantity: int
+) -> Tuple[Dict[str, int], List[Tuple[str, int, int, List, int]]]:
     """
     Calculates the ingredients and steps required for a given recipe and quantity.
 
@@ -198,7 +203,9 @@ def calculate(recipe, desired_quantity):
 
 
 @auto_log(__name__)
-def calculate_single_recipe_ingredients(recipe, desired_runs):
+def calculate_single_recipe_ingredients(
+    recipe: rcp.Recipe, desired_runs: int
+) -> Dict[str, int]:
     """
     Calculates the ingredients required for a given recipe based on the number of desired runs.
 
@@ -221,8 +228,8 @@ def calculate_single_recipe_ingredients(recipe, desired_runs):
 
 @auto_log(__name__)
 def calculate_nested_recipe_ingredients(
-    nested_recipe, quantity_needed, desired_quantity
-):
+    nested_recipe: rcp.Recipe, quantity_needed: int, desired_quantity: int
+) -> Tuple[Dict[str, int], List, int]:
     """
     Calculates the ingredients required for nested recipes.
 
@@ -247,7 +254,7 @@ def calculate_nested_recipe_ingredients(
 
 
 @auto_log(__name__)
-def calculate_base_ingredients(recipe, runs_needed):
+def calculate_base_ingredients(recipe: rcp.Recipe, runs_needed: int) -> Dict[str, int]:
     base_ingredients = {}
     for ingredient, quantity in recipe.ingredients.items():
         base_ingredients[ingredient] = (
@@ -268,7 +275,7 @@ def calculate_base_ingredients(recipe, runs_needed):
 
 
 @auto_log(__name__)
-def print_steps(steps):
+def print_steps(steps: List[Tuple[str, int, int, List, int]]) -> None:
     """
     Recursively prints the steps and ingredients required for a recipe and its nested recipes,
     including the total output and any waste.
@@ -302,7 +309,7 @@ def print_steps(steps):
 
 
 @auto_log(__name__)
-def calculate_ingredients(recipe_name, desired_quantity):
+def calculate_ingredients(recipe_name: str, desired_quantity: int) -> None:
     """
     Calculates the ingredients required for a given recipe and quantity.
 
@@ -327,7 +334,7 @@ def calculate_ingredients(recipe_name, desired_quantity):
 
 
 @auto_log(__name__)
-def list_all_recipes():
+def list_all_recipes() -> None:
     """
     Lists all the recipes currently stored in the database.
 
@@ -342,7 +349,7 @@ def list_all_recipes():
 
 
 @auto_log(__name__)
-def select_and_calculate_recipe():
+def select_and_calculate_recipe() -> None:
     """
     Prompts the user to select a recipe and calculates the required ingredients.
 
