@@ -5,23 +5,25 @@ Recipe Calculator application, including setup and recipe management.
 import functools
 import json
 import sqlite3
-from mc_calculator.recipe import Recipe
+from typing import Optional, Callable, List, Tuple, Any
+from .recipe import Recipe
 
 # from mc_calculator.c_crafting_block import CraftingBlock
 
 
-def with_db_connection(db_path="minecraft_recipes.db"):
+def with_db_connection(db_path: str = "minecraft_recipes.db") -> Callable:
     """
     Open new connection if not already supplied.
     """
 
-    def decorator(func):
+    def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper_decorator(*args, **kwargs):
+        def wrapper_decorator(*args: Any, **kwargs: Any) -> Any:
             # Check if 'conn' is already supplied
-            if "conn" in kwargs and kwargs["conn"] is not None:
-                # Use the provided connection
+            conn = kwargs.get("conn")
+            if conn is not None and isinstance(conn, sqlite3.Connection):
                 return func(*args, **kwargs)
+
             # Manage a new connection
             with sqlite3.connect(db_path) as conn:
                 kwargs["conn"] = conn
@@ -33,7 +35,7 @@ def with_db_connection(db_path="minecraft_recipes.db"):
 
 
 @with_db_connection()
-def setup_database(conn=None):
+def setup_database(conn: Optional[sqlite3.Connection] = None) -> None:
     """
     Sets up the database for storing recipes.
 
@@ -87,7 +89,7 @@ def setup_database(conn=None):
 
 
 @with_db_connection()
-def migrate_nested_recipes(conn=None):
+def migrate_nested_recipes(conn: Optional[sqlite3.Connection] = None) -> None:
     """
     Migrates the nested recipe data from the 'ingredients' column
     to the 'nested_recipes_json' column for all recipes.
@@ -114,7 +116,9 @@ def migrate_nested_recipes(conn=None):
 
 
 @with_db_connection()
-def save_recipe_to_db(recipe, conn=None):
+def save_recipe_to_db(
+    recipe: Recipe, conn: Optional[sqlite3.Connection] = None
+) -> None:
     """
     Saves a recipe to the database.
 
@@ -141,7 +145,9 @@ def save_recipe_to_db(recipe, conn=None):
 
 
 @with_db_connection()
-def fetch_recipe_by_name(recipe_name: str, conn=None):
+def fetch_recipe_by_name(
+    recipe_name: str, conn: Optional[sqlite3.Connection] = None
+) -> Optional[Recipe]:
     """
     Get a recipe from the database by name.
 
@@ -167,7 +173,9 @@ def fetch_recipe_by_name(recipe_name: str, conn=None):
 
 
 @with_db_connection()
-def fetch_recipe_by_id(recipe_id, conn=None):
+def fetch_recipe_by_id(
+    recipe_id: int, conn: Optional[sqlite3.Connection] = None
+) -> Optional[Recipe]:
     """
     Get a recipe from the database by ID.
 
@@ -193,7 +201,9 @@ def fetch_recipe_by_id(recipe_id, conn=None):
 
 
 @with_db_connection()
-def list_recipes(conn=None):
+def list_recipes(
+    conn: Optional[sqlite3.Connection] = None,
+) -> List[Tuple[int, str, int]]:
     """
     Get all recipes
 

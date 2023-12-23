@@ -4,6 +4,7 @@ in the Minecraft Recipe Calculator application.
 """
 import logging
 import math
+from typing import List, Tuple, Dict
 from . import database_ops as db
 from .decorator import auto_log
 from . import recipe as rcp
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @auto_log(__name__)
-def get_ingredient_input():
+def get_ingredient_input() -> Tuple[str, int]:
     """
     Prompts the user to input an ingredient and its quantity.
 
@@ -41,7 +42,9 @@ def get_ingredient_input():
 
 
 @auto_log(__name__)
-def get_nested_recipe_input(existing_recipes):
+def get_nested_recipe_input(
+    existing_recipes: List[Tuple[int, str, int]]
+) -> Tuple[int, int]:
     """
     Prompts the user to select an existing recipe to use as a nested recipe.
 
@@ -73,7 +76,7 @@ def get_nested_recipe_input(existing_recipes):
 
 
 @auto_log(__name__)
-def create_recipe():
+def create_recipe() -> rcp.Recipe:
     """
     Creates a new recipe by prompting the user for inputs.
 
@@ -152,7 +155,9 @@ def create_recipe():
 
 
 @auto_log(__name__)
-def calculate(recipe, desired_quantity):
+def calculate(
+    recipe: rcp.Recipe, desired_quantity: int
+) -> Tuple[Dict[str, int], List[Tuple[str, int, int, List, int]]]:
     """
     Calculates the ingredients and steps required for a given recipe and quantity.
 
@@ -176,29 +181,29 @@ def calculate(recipe, desired_quantity):
     for nested_id, quantity_needed in recipe.nested_recipes.items():
         nested_recipe = db.fetch_recipe_by_id(nested_id)
         if nested_recipe:
-            (
-                nested_ings,
-                nested_steps,
-                runs_needed,
-            ) = calculate_nested_recipe_ingredients(
-                nested_recipe, quantity_needed, desired_quantity
+            nested_runs = math.ceil(
+                quantity_needed * desired_runs / nested_recipe.output_count
             )
+            nested_ingredients = calculate_base_ingredients(nested_recipe, nested_runs)
+
+            # Calculate the total output and waste for each nested recipe step
+            total_output = nested_runs * nested_recipe.output_count
+            waste = total_output - (quantity_needed * desired_runs)
+
             steps.append(
-                (
-                    nested_recipe.name,
-                    runs_needed,
-                    nested_recipe.output_count,
-                    nested_steps,
-                )
+                (nested_recipe.name, nested_runs, nested_recipe.output_count, [], waste)
             )
-            for ing, qty in nested_ings.items():
+
+            for ing, qty in nested_ingredients.items():
                 ingredients_needed[ing] = ingredients_needed.get(ing, 0) + qty
 
     return ingredients_needed, steps
 
 
 @auto_log(__name__)
-def calculate_single_recipe_ingredients(recipe, desired_runs):
+def calculate_single_recipe_ingredients(
+    recipe: rcp.Recipe, desired_runs: int
+) -> Dict[str, int]:
     """
     Calculates the ingredients required for a given recipe based on the number of desired runs.
 
@@ -221,8 +226,8 @@ def calculate_single_recipe_ingredients(recipe, desired_runs):
 
 @auto_log(__name__)
 def calculate_nested_recipe_ingredients(
-    nested_recipe, quantity_needed, desired_quantity
-):
+    nested_recipe: rcp.Recipe, quantity_needed: int, desired_quantity: int
+) -> Tuple[Dict[str, int], List, int]:
     """
     Calculates the ingredients required for nested recipes.
 
@@ -247,22 +252,54 @@ def calculate_nested_recipe_ingredients(
 
 
 @auto_log(__name__)
-def print_steps(steps):
+def calculate_base_ingredients(recipe: rcp.Recipe, runs_needed: int) -> Dict[str, int]:
+    base_ingredients = {}
+    for ingredient, quantity in recipe.ingredients.items():
+        base_ingredients[ingredient] = (
+            base_ingredients.get(ingredient, 0) + quantity * runs_needed
+        )
+
+    for nested_id, quantity_needed in recipe.nested_recipes.items():
+        nested_recipe = db.fetch_recipe_by_id(nested_id)
+        if nested_recipe:
+            nested_runs = math.ceil(
+                quantity_needed * runs_needed / nested_recipe.output_count
+            )
+            nested_base_ings = calculate_base_ingredients(nested_recipe, nested_runs)
+            for ing, qty in nested_base_ings.items():
+                base_ingredients[ing] = base_ingredients.get(ing, 0) + qty
+
+    return base_ingredients
+
+
+@auto_log(__name__)
+def print_steps(steps: List[Tuple[str, int, int, List, int]]) -> None:
     """
-    Recursively prints the steps and ingredients required for a recipe and its nested recipes.
+    Recursively prints the steps and ingredients required for a recipe and its nested recipes,
+    including the total output and any waste.
 
     Args:
         steps (list): A list of tuples containing details about each recipe step.
                       Each tuple contains the recipe name, the number of runs needed,
-                      the output count, and any nested steps.
+                      the output count, any nested steps, and the waste.
     """
     logger.info("Printing steps. . .")
-    for step_name, step_multiplier, step_output, nested_steps in steps:
+    for step_name, step_multiplier, step_output, nested_steps, waste in steps:
         nested_recipe = db.fetch_recipe_by_name(step_name)
+        total_output = step_multiplier * step_output
+        waste_info = f", Waste: {waste}x {step_name}" if waste > 0 else "Waste: None"
+
         print(
-            f"- {step_multiplier} Recipe {step_name} (Output: {step_output}, "
-            + ", ".join(
+            f"- {step_multiplier}x Recipe {step_name} (Total Output: {total_output} {step_name} {waste_info}, Ingredients: "
+            + " ".join(
                 [f"{qty} {ing}" for ing, qty in nested_recipe.ingredients.items()]
+            )
+            + ", "
+            + " ".join(
+                [
+                    f"{n_qty} {db.fetch_recipe_by_id(int(n_id)).name}"
+                    for n_id, n_qty in nested_recipe.nested_recipes.items()
+                ]
             )
             + ")"
         )
@@ -270,7 +307,7 @@ def print_steps(steps):
 
 
 @auto_log(__name__)
-def calculate_ingredients(recipe_name, desired_quantity):
+def calculate_ingredients(recipe_name: str, desired_quantity: int) -> None:
     """
     Calculates the ingredients required for a given recipe and quantity.
 
@@ -295,7 +332,7 @@ def calculate_ingredients(recipe_name, desired_quantity):
 
 
 @auto_log(__name__)
-def list_all_recipes():
+def list_all_recipes() -> None:
     """
     Lists all the recipes currently stored in the database.
 
@@ -310,7 +347,7 @@ def list_all_recipes():
 
 
 @auto_log(__name__)
-def select_and_calculate_recipe():
+def select_and_calculate_recipe() -> None:
     """
     Prompts the user to select a recipe and calculates the required ingredients.
 

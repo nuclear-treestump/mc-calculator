@@ -18,7 +18,7 @@ MC_CALC_TITLE = """
 
 
 @auto_log(__name__)
-def display_credits():
+def display_credits() -> None:
     """
     Displays the credits for the application.
     """
@@ -29,7 +29,7 @@ def display_credits():
 
 
 @auto_log(__name__)
-def main():
+def main() -> None:
     """
     Main function to run the Minecraft Recipe Calculator application.
 
