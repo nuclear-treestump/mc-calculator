@@ -69,8 +69,8 @@ def setup_database(conn=None):
     cursor.execute(
         "SELECT value FROM flags WHERE key = 'nested_recipes_migration_done'"
     )
-    migration_done = cursor.fetchone()
-    if not migration_done:
+    migration_done = cursor.fetchone()  # Check if key exists.
+    if not migration_done:  # If key doesn't exist, perform migration on all recipes
         cursor.execute(
             """
         ALTER TABLE recipes
@@ -78,7 +78,7 @@ def setup_database(conn=None):
         """
         )
         conn.commit()
-        migrate_nested_recipes(conn)
+        migrate_nested_recipes()
         cursor.execute(
             "INSERT INTO flags (key, value) VALUES (?, ?)",
             ("nested_recipes_migration_done", "true"),
