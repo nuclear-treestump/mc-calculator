@@ -9,3 +9,4 @@ tests/__pycache__
 /build
 /.pytest_cache
 mccalculator.log
+minecraft_recipes_old.db
