@@ -3,7 +3,7 @@ This module defines the Recipe class, used for creating and manipulating
 crafting recipes in the Minecraft Recipe Calculator application.
 """
 import json
-from mc_calculator.c_crafting_block import CraftingBlock
+from mc_calculator.crafting_block import CraftingBlock
 
 
 class Recipe:

@@ -2,11 +2,16 @@
 This module contains the logic for creating and calculating recipes
 in the Minecraft Recipe Calculator application.
 """
+import logging
 import math
-from . import c_recipe as rcp
 from . import database_ops as db
+from .decorator import auto_log
+from . import recipe as rcp
+
+logger = logging.getLogger(__name__)
 
 
+@auto_log(__name__)
 def get_ingredient_input():
     """
     Prompts the user to input an ingredient and its quantity.
@@ -14,11 +19,28 @@ def get_ingredient_input():
     Returns:
         tuple: A tuple containing the ingredient name and quantity.
     """
-    ingredient = input("Enter an ingredient: ")
-    quantity = int(input(f"Enter the quantity of {ingredient} needed: "))
+    while True:
+        ingredient = input("Enter an ingredient: ")
+        logger.info(f"User entered ingredient: {ingredient}")
+        if 0 < len(ingredient) <= 50:  # Check for a reasonable length
+            logger.info(f"User ingredient {ingredient} accepted.")
+            break
+        logger.warning(f"Invalid ingredient input length. Length: {len(ingredient)}")
+        print("Invalid input. Please enter a valid ingredient name.")
+
+    while True:
+        try:
+            quantity = int(input(f"Enter the quantity of {ingredient} needed: "))
+            if quantity > 0:  # Ensure quantity is positive
+                break
+            print("Quantity must be positive.")
+        except ValueError:
+            print("Invalid input. Please enter a valid integer for quantity.")
+
     return ingredient, quantity
 
 
+@auto_log(__name__)
 def get_nested_recipe_input(existing_recipes):
     """
     Prompts the user to select an existing recipe to use as a nested recipe.
@@ -29,17 +51,28 @@ def get_nested_recipe_input(existing_recipes):
     Returns:
         tuple: A tuple containing the selected recipe ID and the quantity needed.
     """
-    for recipe_id, recipe_name, output_count in existing_recipes:
-        print(f"{recipe_id}. {recipe_name} (makes {output_count})")
-    selected_recipe_id = int(
-        input("Select the ID of the recipe to use as an ingredient: ")
-    )
+    while True:
+        try:
+            selected_recipe_id = int(
+                input("Select the ID of the recipe to use as an ingredient: ")
+            )
+            logger.info(f"User selected recipe ID: {selected_recipe_id}")
+            if any(
+                recipe_id == selected_recipe_id for recipe_id, _, _ in existing_recipes
+            ):
+                logger.debug(f"Successfully selected recipe ID: {selected_recipe_id}")
+                break
+            logger.warning(f"User selected invalid recipe ID: {selected_recipe_id}")
+            print("Invalid ID. Please select a valid recipe ID.")
+        except ValueError:
+            print("Invalid input. Please enter a valid integer for the recipe ID.")
     final_quantity_needed = int(
         input(f"Enter the quantity of recipe ID {selected_recipe_id} needed: ")
     )
     return selected_recipe_id, final_quantity_needed
 
 
+@auto_log(__name__)
 def create_recipe():
     """
     Creates a new recipe by prompting the user for inputs.
@@ -52,12 +85,37 @@ def create_recipe():
     Returns:
         rcp.Recipe: An instance of the Recipe class with the entered recipe details.
     """
-    name = input("Enter the name of the item (e.g., Aqueous Accumulator): ")
+    logger.info("Starting new recipe creation")
+    while True:
+        name = input("Enter the name of the item (e.g., Aqueous Accumulator): ")
+        logger.info(f"User entered Recipe Name: {name}")
+        if 0 < len(name) <= 100:  # Check for a reasonable length
+            logger.debug(f"Recipe name: '{name}' accepted.")
+            break
+        logger.warning(f"User recipe name rejected. Length: {len(name)}")
+        print("Invalid input. Please enter a valid recipe name.")
     crafting_block = "ctable3"  # Default or choose from available blocks
-    rec_output_count = int(
-        input("Enter the number of items produced by this recipe (default 1): ") or "1"
-    )
-    shaped = input("Is the recipe shaped? (yes/no): ").lower() == "yes"
+    while True:
+        try:
+            rec_output_count_input = input(
+                "Enter the number of items produced by this recipe (default 1): "
+            )
+            rec_output_count = (
+                int(rec_output_count_input) if rec_output_count_input else 1
+            )
+            if rec_output_count > 0:  # Check for a positive integer
+                break
+            print("Please enter a positive integer.")
+        except ValueError:
+            print("Invalid input. Please enter a valid integer.")
+
+    while True:
+        shaped = input("Is the recipe shaped? (yes/no): ").lower()[:3]
+        if shaped in ("yes", "y", "t", "1"):
+            break
+        if shaped in ("no", "n", "f", "0"):
+            break
+        print(f"You entered: {shaped}, Invalid input.")
 
     slots = {}  # Logic for slot-based recipes if needed
     ingredients = {}
@@ -67,16 +125,18 @@ def create_recipe():
 
     while True:
         choice = input("Add ingredient (1) or use existing recipe (2) or 'done': ")
-        if choice == "done":
-            break
-        if choice == "1":
-            ingredient, quantity = get_ingredient_input()
-            ingredients[ingredient] = quantity
-        elif choice == "2" and existing_recipes:
-            selected_recipe_id, final_quantity_needed = get_nested_recipe_input(
-                existing_recipes
-            )
-            nested_recipes[selected_recipe_id] = final_quantity_needed
+        if choice in ("1", "2", "done"):
+            if choice == "done":
+                break
+            if choice == "1":
+                ingredient, quantity = get_ingredient_input()
+                ingredients[ingredient] = quantity
+            elif choice == "2" and existing_recipes:
+                selected_recipe_id, final_quantity_needed = get_nested_recipe_input(
+                    existing_recipes
+                )
+                nested_recipes[selected_recipe_id] = final_quantity_needed
+        print("Invalid input. Please enter '1', '2', or 'done'.")
 
     recipe = rcp.Recipe(
         name=name,
@@ -91,6 +151,7 @@ def create_recipe():
     return recipe
 
 
+@auto_log(__name__)
 def calculate(recipe, desired_quantity):
     """
     Calculates the ingredients and steps required for a given recipe and quantity.
@@ -103,6 +164,9 @@ def calculate(recipe, desired_quantity):
         dict: A dictionary of ingredients and their required quantities.
         list: A list of steps involved in making the recipe.
     """
+    logger.info(
+        f"Starting calculation for recipe: {recipe.name} for quantity: {desired_quantity}"
+    )
     ingredients_needed = {}
     steps = []
 
@@ -133,6 +197,7 @@ def calculate(recipe, desired_quantity):
     return ingredients_needed, steps
 
 
+@auto_log(__name__)
 def calculate_single_recipe_ingredients(recipe, desired_runs):
     """
     Calculates the ingredients required for a given recipe based on the number of desired runs.
@@ -146,6 +211,7 @@ def calculate_single_recipe_ingredients(recipe, desired_runs):
     """
     ingredients_needed = {}
     for ingredient, quantity in recipe.ingredients.items():
+        logger.info(f"Calculating {ingredient} with quantity {quantity}")
         total_quantity = quantity * desired_runs
         ingredients_needed[ingredient] = (
             ingredients_needed.get(ingredient, 0) + total_quantity
@@ -153,6 +219,7 @@ def calculate_single_recipe_ingredients(recipe, desired_runs):
     return ingredients_needed
 
 
+@auto_log(__name__)
 def calculate_nested_recipe_ingredients(
     nested_recipe, quantity_needed, desired_quantity
 ):
@@ -169,6 +236,9 @@ def calculate_nested_recipe_ingredients(
         ingredients/quantities, a list of steps,
         and the number of runs needed for a nested recipe
     """
+    logger.info(
+        f"Starting calculation for {nested_recipe.name}, quantity needed: {quantity_needed}, desired quantity: {desired_quantity}"
+    )
     runs_needed = math.ceil(
         quantity_needed * desired_quantity / nested_recipe.output_count
     )
@@ -176,6 +246,7 @@ def calculate_nested_recipe_ingredients(
     return nested_ingredients, nested_steps, runs_needed
 
 
+@auto_log(__name__)
 def print_steps(steps):
     """
     Recursively prints the steps and ingredients required for a recipe and its nested recipes.
@@ -185,6 +256,7 @@ def print_steps(steps):
                       Each tuple contains the recipe name, the number of runs needed,
                       the output count, and any nested steps.
     """
+    logger.info("Printing steps. . .")
     for step_name, step_multiplier, step_output, nested_steps in steps:
         nested_recipe = db.fetch_recipe_by_name(step_name)
         print(
@@ -197,6 +269,7 @@ def print_steps(steps):
         print_steps(nested_steps)  # Recursively print nested steps
 
 
+@auto_log(__name__)
 def calculate_ingredients(recipe_name, desired_quantity):
     """
     Calculates the ingredients required for a given recipe and quantity.
@@ -209,6 +282,7 @@ def calculate_ingredients(recipe_name, desired_quantity):
         None: This function prints the required ingredients and their quantities to the console.
     """
     recipe = db.fetch_recipe_by_name(recipe_name)
+    logger.info(f"Calculating: {recipe.name} for quantity: {desired_quantity}")
     if recipe:
         print(f"\nTo make {desired_quantity} {recipe.name}(s), you need to first make:")
         total_ingredients, steps = calculate(recipe, desired_quantity)
@@ -220,6 +294,7 @@ def calculate_ingredients(recipe_name, desired_quantity):
         print("Recipe not found.")
 
 
+@auto_log(__name__)
 def list_all_recipes():
     """
     Lists all the recipes currently stored in the database.
@@ -227,12 +302,14 @@ def list_all_recipes():
     Retrieves and displays a list of all recipes, including their name and output count,
     from the database. This function is intended for use within the main application menu.
     """
+    logger.info("Printing all recipes to console")
     existing_recipes = db.list_recipes()
     print("\nAvailable Recipes:")
     for recipe_number, recipe_name, output_count in existing_recipes:
         print(f"{recipe_number}. {recipe_name} (Output: {output_count})")
 
 
+@auto_log(__name__)
 def select_and_calculate_recipe():
     """
     Prompts the user to select a recipe and calculates the required ingredients.
@@ -245,12 +322,33 @@ def select_and_calculate_recipe():
     if recipes:
         for recipe_number, recipe_name, output_count in recipes:
             print(f"{recipe_number}. {recipe_name} (Output: {output_count})")
-        recipe_choice = int(input("Enter the number of the recipe to calculate: "))
-        if 1 <= recipe_choice <= len(recipes):
-            _, recipe_name, _ = recipes[recipe_choice - 1]
-            desired_quantity = int(
-                input(f"Enter the number of {recipe_name}s you want to make: ")
-            )
-            calculate_ingredients(recipe_name, desired_quantity)
-        else:
-            print("Invalid recipe number.")
+
+        while True:
+            try:
+                recipe_choice = int(
+                    input("Enter the number of the recipe to calculate: ")
+                )
+                if 1 <= recipe_choice <= len(recipes):
+                    break
+                print(
+                    "Invalid recipe number. Please enter a number within the displayed range."
+                )
+            except ValueError:
+                print("Invalid input. Please enter a valid integer.")
+
+        _, recipe_name, _ = recipes[recipe_choice - 1]
+
+        while True:
+            try:
+                desired_quantity = int(
+                    input(f"Enter the number of {recipe_name}s you want to make: ")
+                )
+                if desired_quantity > 0:
+                    break
+                print("Invalid quantity. Please enter a positive integer.")
+            except ValueError:
+                print("Invalid input. Please enter a valid integer.")
+
+        calculate_ingredients(recipe_name, desired_quantity)
+    else:
+        print("No recipes available.")
