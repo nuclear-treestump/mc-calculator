@@ -26,7 +26,7 @@ The Minecraft Recipe Calculator is a Python-based tool designed for Minecraft. I
 
 ### Installation
 1. **Install the package**: Install the package via pip by running `pip install mc-calculator`
-    - If you've downloaded the `.whl` file from the releases, you can install it by running `pip install /path/to/mc_calculator-0.3.0-py3-none-any.whl`
+    - If you've downloaded the `.whl` file from the releases, you can install it by running `pip install /path/to/mc_calculator-0.3.2-py3-none-any.whl`
 2. **Confirm the package installed correctly**: Run `mc-calculator` from the terminal. If its installed correctly, you'll get a menu that looks like this:
     ```
 

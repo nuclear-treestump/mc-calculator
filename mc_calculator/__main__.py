@@ -22,7 +22,7 @@ def display_credits():
     """
     Displays the credits for the application.
     """
-    print("MC-CALCULATOR v0.3.1 created by: 0xIkari")
+    print("MC-CALCULATOR v0.3.2 created by: 0xIkari")
     print(
         "For more information, visit: https://github.com/nuclear-treestump/mc-calculator"
     )
