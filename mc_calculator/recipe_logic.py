@@ -8,6 +8,7 @@ from typing import List, Tuple, Dict
 from . import database_ops as db
 from .decorator import auto_log
 from . import recipe as rcp
+from typing import List, Dict, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ def get_nested_recipe_input(
     """
     while True:
         try:
+            list_all_recipes()
             selected_recipe_id = int(
                 input("Select the ID of the recipe to use as an ingredient: ")
             )
@@ -92,7 +94,7 @@ def create_recipe() -> rcp.Recipe:
     while True:
         name = input("Enter the name of the item (e.g., Aqueous Accumulator): ")
         logger.info(f"User entered Recipe Name: {name}")
-        if 0 < len(name) <= 100:  # Check for a reasonable length
+        if 0 < len(name) <= 50:  # Check for a reasonable length
             logger.debug(f"Recipe name: '{name}' accepted.")
             break
         logger.warning(f"User recipe name rejected. Length: {len(name)}")
@@ -361,6 +363,7 @@ def select_and_calculate_recipe() -> None:
             print(f"{recipe_number}. {recipe_name} (Output: {output_count})")
 
         while True:
+            list_all_recipes()
             try:
                 recipe_choice = int(
                     input("Enter the number of the recipe to calculate: ")
